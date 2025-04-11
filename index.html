@@ -9,10 +9,12 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
         table {
             border-collapse: collapse;
-            width: 50%;
+            width: 100%;
         }
         th, td {
             border: 1px solid black;
@@ -29,12 +31,12 @@
         .table-container {
             width: 50%;
         }
-   >
+    </style>
 </head>
 <body>
     <div class="form-container">
         <h1>Formulario de Números</h1>
-        <form id="numberForm" action="https://formspree.io/f/mjkylvrj" method="POST">
+        <form id="numberForm">
             <label for="name">Nombre:</label>
             <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required>
             <br><br>
@@ -49,52 +51,55 @@
     </div>
     <div class="table-container">
         <table id="numberTable">
-            <!-- Filas de números se generarán aquí -->
+            <!-- Números se insertan aquí -->
         </table>
     </div>
 
     <script>
         const selectedNumbers = new Set();
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec";
 
         document.getElementById('numberForm').addEventListener('submit', function(event) {
             event.preventDefault();
+
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
             const number = parseInt(document.getElementById('number').value, 10);
 
             if (selectedNumbers.has(number)) {
-                alert('El número ' + number + ' ya ha sido seleccionado. Por favor, elige otro número.');
+                alert('El número ' + number + ' ya ha sido seleccionado. Por favor, elige otro.');
             } else {
-                selectedNumbers.add(number);
                 saveRecord(name, phone, number);
-                updateTable();
             }
         });
 
         function saveRecord(name, phone, number) {
-            const form = document.getElementById('numberForm');
-            const formData = new FormData(form);
-            fetch(form.action, {
+            fetch(webAppUrl, {
                 method: 'POST',
-                body: formData,
                 headers: {
-                    'Accept': 'application/json'
-                }
-            }).then(response => {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, phone, number })
+            })
+            .then(response => {
                 if (response.ok) {
+                    selectedNumbers.add(number);
+                    updateTable();
                     alert('Registro guardado con éxito');
+                    document.getElementById('numberForm').reset();
                 } else {
-                    alert('Hubo un problema al guardar el registro');
+                    alert('Error al guardar el registro');
                 }
-            }).catch(error => {
+            })
+            .catch(error => {
                 console.error('Error:', error);
-                alert('Hubo un problema al guardar el registro');
+                alert('Error al guardar el registro');
             });
         }
 
         function updateTable() {
             const table = document.getElementById('numberTable');
-            table.innerHTML = ''; // Reiniciar tabla
+            table.innerHTML = '';
 
             for (let i = 0; i < 10; i++) {
                 const row = table.insertRow();
@@ -110,29 +115,23 @@
         }
 
         function fetchSelectedNumbers() {
-            fetch('https://formspree.io/api/forms/mjkylvrj/submissions', {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                selectedNumbers.clear();
-                data.submissions.forEach(submission => {
-                    const number = parseInt(submission.data.number, 10);
-                    selectedNumbers.add(number);
+            fetch(webAppUrl)
+                .then(response => response.json())
+                .then(data => {
+                    selectedNumbers.clear();
+                    data.forEach(num => selectedNumbers.add(parseInt(num, 10)));
+                    updateTable();
+                })
+                .catch(error => {
+                    console.error('Error al obtener los datos:', error);
                 });
-                updateTable();
-            })
-            .catch(error => {
-                console.error('Error al obtener los datos:', error);
-            });
         }
 
-        // Inicializar tabla y obtener datos al cargar la página
+        // Al cargar la página
         window.onload = function() {
             fetchSelectedNumbers();
         };
     </script>
 </body>
 </html>
+
