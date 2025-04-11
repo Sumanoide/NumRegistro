@@ -1,137 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Números</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid black;
-            text-align: center;
-            padding: 8px;
-        }
-        .selected {
-            background-color: blue;
-            color: white;
-        }
-        .form-container {
-            width: 45%;
-        }
-        .table-container {
-            width: 50%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario de Números</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      width: 40%;
+    }
+
+    .table-container {
+      width: 50%;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #000;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .selected {
+      background-color: blue;
+      color: white;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Formulario de Números</h1>
-        <form id="numberForm">
-            <label for="name">Nombre:</label>
-            <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required>
-            <br><br>
-            <label for="phone">Teléfono:</label>
-            <input type="text" id="phone" name="phone" pattern="\d{10}" required>
-            <br><br>
-            <label for="number">Número (00-99):</label>
-            <input type="number" id="number" name="number" min="0" max="99" required>
-            <br><br>
-            <button type="submit">Enviar</button>
-        </form>
-    </div>
-    <div class="table-container">
-        <table id="numberTable">
-            <!-- Números se insertan aquí -->
-        </table>
-    </div>
 
-    <script>
-        const selectedNumbers = new Set();
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec";
+  <div class="form-container">
+    <h1>Formulario de Números</h1>
+    <form id="numberForm">
+      <label for="name">Nombre:</label>
+      <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required>
 
-        document.getElementById('numberForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const number = parseInt(document.getElementById('number').value, 10);
-
-            if (selectedNumbers.has(number)) {
-                alert('El número ' + number + ' ya ha sido seleccionado. Por favor, elige otro.');
-            } else {
-                saveRecord(name, phone, number);
-            }
-        });
-
-        function saveRecord(name, phone, number) {
-            fetch(webAppUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, phone, number })
-            })
-            .then(response => {
-                if (response.ok) {
-                    selectedNumbers.add(number);
-                    updateTable();
-                    alert('Registro guardado con éxito');
-                    document.getElementById('numberForm').reset();
-                } else {
-                    alert('Error al guardar el registro');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al guardar el registro');
-            });
-        }
-
-        function updateTable() {
-            const table = document.getElementById('numberTable');
-            table.innerHTML = '';
-
-            for (let i = 0; i < 10; i++) {
-                const row = table.insertRow();
-                for (let j = 0; j < 10; j++) {
-                    const number = i * 10 + j;
-                    const cell = row.insertCell();
-                    cell.textContent = number.toString().padStart(2, '0');
-                    if (selectedNumbers.has(number)) {
-                        cell.classList.add('selected');
-                    }
-                }
-            }
-        }
-
-        function fetchSelectedNumbers() {
-            fetch(webAppUrl)
-                .then(response => response.json())
-                .then(data => {
-                    selectedNumbers.clear();
-                    data.forEach(num => selectedNumbers.add(parseInt(num, 10)));
-                    updateTable();
-                })
-                .catch(error => {
-                    console.error('Error al obtener los datos:', error);
-                });
-        }
-
-        // Al cargar la página
-        window.onload = function() {
-            fetchSelectedNumbers();
-        };
-    </script>
-</body>
-</html>
+      <label for="phone">Teléfono:</label>
+      <input
 
