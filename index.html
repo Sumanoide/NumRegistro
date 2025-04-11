@@ -21,7 +21,9 @@
         }
         .selected {
             background-color: blue;
-            .form-container {
+            color: white;
+        }
+        .form-container {
             width: 45%;
         }
         .table-container {
@@ -52,7 +54,7 @@
     </div>
 
     <script>
-        const selectedNumbers = new Set(JSON.parse(localStorage.getItem('selectedNumbers')) || []);
+        const selectedNumbers = new Set();
 
         document.getElementById('numberForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -64,7 +66,6 @@
                 alert('El número ' + number + ' ya ha sido seleccionado. Por favor, elige otro número.');
             } else {
                 selectedNumbers.add(number);
-                localStorage.setItem('selectedNumbers', JSON.stringify(Array.from(selectedNumbers)));
                 saveRecord(name, phone, number);
                 updateTable();
             }
@@ -108,9 +109,18 @@
             }
         }
 
-        // Inicializar tabla
-        updateTable();
+        function fetchSelectedNumbers() {
+            // Aquí puedes agregar la lógica para obtener los datos de Formspree y actualizar selectedNumbers
+            // Por ejemplo, podrías usar fetch para obtener los datos y luego actualizar selectedNumbers
+        }
+
+        // Inicializar tabla y obtener datos al cargar la página
+        window.onload = function() {
+            fetchSelectedNumbers();
+            updateTable();
+        };
     </script>
 </body>
 </html>
+
 
