@@ -34,7 +34,7 @@
 <body>
     <div class="form-container">
         <h1>Formulario de Números</h1>
-        <form id="numberForm">
+        <form id="numberForm" action="https://formspree.io/f/mjkylvrj" method="POST">
             <label for="name">Nombre:</label>
             <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required>
             <br><br>
@@ -73,16 +73,24 @@
         });
 
         function saveRecord(name, phone, number) {
-            fetch('TU_URL_DEL_SCRIPT', {
+            const form = document.getElementById('numberForm');
+            const formData = new FormData(form);
+            fetch(form.action, {
                 method: 'POST',
+                body: formData,
                 headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, phone, number })
-            })
-            .then(response => response.text())
-            .then(data => console.log(data))
-            .catch(error => console.error('Error:', error));
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    alert('Registro guardado con éxito');
+                } else {
+                    alert('Hubo un problema al guardar el registro');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un problema al guardar el registro');
+            });
         }
 
         function updateTable() {
@@ -107,3 +115,4 @@
     </script>
 </body>
 </html>
+
