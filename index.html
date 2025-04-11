@@ -29,7 +29,7 @@
         .table-container {
             width: 50%;
         }
-    </style>
+   >
 </head>
 <body>
     <div class="form-container">
@@ -110,17 +110,29 @@
         }
 
         function fetchSelectedNumbers() {
-            // Aquí puedes agregar la lógica para obtener los datos de Formspree y actualizar selectedNumbers
-            // Por ejemplo, podrías usar fetch para obtener los datos y luego actualizar selectedNumbers
+            fetch('https://formspree.io/api/forms/mjkylvrj/submissions', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                selectedNumbers.clear();
+                data.submissions.forEach(submission => {
+                    const number = parseInt(submission.data.number, 10);
+                    selectedNumbers.add(number);
+                });
+                updateTable();
+            })
+            .catch(error => {
+                console.error('Error al obtener los datos:', error);
+            });
         }
 
         // Inicializar tabla y obtener datos al cargar la página
         window.onload = function() {
             fetchSelectedNumbers();
-            updateTable();
         };
     </script>
 </body>
 </html>
-
-
