@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Formulario de Números</title>
   <style>
     body {
@@ -46,18 +46,17 @@
   </style>
 </head>
 <body>
-
   <div class="form-container">
     <h1>Formulario de Números</h1>
     <form id="numberForm">
       <label for="name">Nombre:</label>
-      <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required>
+      <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required />
 
       <label for="phone">Teléfono:</label>
-      <input type="text" id="phone" name="phone" pattern="\d{10}" required>
+      <input type="text" id="phone" name="phone" pattern="\d{10}" required />
 
       <label for="number">Número (00-99):</label>
-      <input type="number" id="number" name="number" min="0" max="99" required>
+      <input type="number" id="number" name="number" min="0" max="99" required />
 
       <button type="submit">Enviar</button>
     </form>
@@ -71,8 +70,8 @@
     const selectedNumbers = new Set();
     const webAppUrl = "https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec";
 
-    // Construir tabla del 00 al 99
-    function buildTable() {
+    // Construir tabla vacía del 00 al 99 (siempre)
+    function buildEmptyTable() {
       const table = document.getElementById('numberTable');
       table.innerHTML = '';
       for (let i = 0; i < 10; i++) {
@@ -82,28 +81,35 @@
           const cell = row.insertCell();
           cell.textContent = number.toString().padStart(2, '0');
           cell.id = `cell-${number}`;
-          if (selectedNumbers.has(number)) {
-            cell.classList.add('selected');
-          }
         }
       }
     }
 
-    // Cargar números ya seleccionados desde Google Sheets
+    // Marcar números ya ocupados
+    function highlightSelectedNumbers() {
+      selectedNumbers.forEach(number => {
+        const cell = document.getElementById(`cell-${number}`);
+        if (cell) {
+          cell.classList.add('selected');
+        }
+      });
+    }
+
+    // Obtener datos desde el Web App
     function fetchSelectedNumbers() {
       fetch(webAppUrl)
         .then(response => response.json())
         .then(data => {
           selectedNumbers.clear();
           data.forEach(num => selectedNumbers.add(parseInt(num)));
-          buildTable();
+          highlightSelectedNumbers();
         })
         .catch(error => {
           console.error('Error al obtener los datos:', error);
         });
     }
 
-    // Enviar datos al Web App (POST)
+    // Guardar registro (POST)
     function saveRecord(name, phone, number) {
       const data = { name, phone, number };
       fetch(webAppUrl, {
@@ -116,7 +122,8 @@
         if (response.ok) {
           alert('Registro guardado con éxito');
           selectedNumbers.add(number);
-          buildTable();
+          const cell = document.getElementById(`cell-${number}`);
+          if (cell) cell.classList.add('selected');
         } else {
           alert('Error al guardar el registro');
         }
@@ -126,7 +133,7 @@
       });
     }
 
-    // Manejador del formulario
+    // Manejador de formulario
     document.getElementById('numberForm').addEventListener('submit', function (e) {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
@@ -141,9 +148,15 @@
       saveRecord(name, phone, number);
     });
 
-    // Cargar tabla al iniciar
-    window.onload = fetchSelectedNumbers;
+    // Al cargar la página
+    window.onload = function () {
+      buildEmptyTable();
+      fetchSelectedNumbers();
+    };
   </script>
+</body>
+</html>
+
 
 </body>
 </html>
