@@ -9,17 +9,15 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            font-family: Arial, sans-serif;
-            padding: 20px;
         }
         table {
             border-collapse: collapse;
-            width: 100%;
+            width: 50%;
         }
         th, td {
             border: 1px solid black;
             text-align: center;
-            padding: 10px;
+            padding: 8px;
         }
         .selected {
             background-color: blue;
@@ -38,35 +36,25 @@
         <h1>Formulario de Números</h1>
         <form id="numberForm">
             <label for="name">Nombre:</label>
-            <input type="text" id="name" name="name" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" required><br><br>
-
-            <label for="phone">Teléfono:</label>
-<input 
-    type="tel" 
-    id="phone" 
-    name="phone" 
-    pattern="\d{10}" 
-    maxlength="10" 
-    required 
-    placeholder="Ej: 5512345678">
-<small style="color: gray;">Ingresa 10 dígitos (solo números, sin espacios ni guiones)</small>
-
-
+            <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required>
+            <br><br>
+            <label for="phone">Teléfono (10 dígitos):</label>
+            <input type="text" id="phone" name="phone" pattern="\d{10}" required>
+            <br><br>
             <label for="number">Número (00-99):</label>
-            <input type="number" id="number" name="number" min="0" max="99" required><br><br>
-
+            <input type="number" id="number" name="number" min="0" max="99" required>
+            <br><br>
             <button type="submit">Enviar</button>
         </form>
     </div>
-
     <div class="table-container">
-        <h2>Números Ocupados</h2>
-        <table id="numberTable"></table>
+        <table id="numberTable">
+            <!-- La tabla de números se generará aquí -->
+        </table>
     </div>
 
     <script>
         const selectedNumbers = new Set();
-        const scriptURL = "https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec";
 
         document.getElementById('numberForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -76,35 +64,37 @@
 
             if (selectedNumbers.has(number)) {
                 alert('El número ' + number + ' ya ha sido seleccionado. Por favor, elige otro número.');
-                return;
+            } else {
+                selectedNumbers.add(number);
+                saveRecord(name, phone, number);
+                updateTable();
             }
+        });
 
-            const data = {
-                name,
-                phone,
-                number
-            };
+        function saveRecord(name, phone, number) {
+            const data = { name, phone, number };
 
-            fetch(scriptURL, {
+            fetch('https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec', {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            }).then(response => response.text())
-              .then(result => {
-                alert('Registro exitoso');
-                selectedNumbers.add(number);
-                updateTable();
+            }).then(response => {
+                if (response.ok) {
+                    alert('Registro guardado con éxito');
+                } else {
+                    alert('Error de conexión al guardar el registro.');
+                }
             }).catch(error => {
                 console.error('Error:', error);
                 alert('Error de conexión al guardar el registro.');
             });
-        });
+        }
 
         function updateTable() {
             const table = document.getElementById('numberTable');
-            table.innerHTML = '';
+            table.innerHTML = ''; // Reiniciar tabla
 
             for (let i = 0; i < 10; i++) {
                 const row = table.insertRow();
@@ -120,19 +110,23 @@
         }
 
         function fetchSelectedNumbers() {
-            fetch(scriptURL)
-                .then(response => response.json())
-                .then(data => {
-                    selectedNumbers.clear();
-                    data.forEach(num => selectedNumbers.add(parseInt(num, 10)));
-                    updateTable();
-                })
-                .catch(error => {
-                    console.error('Error al obtener los números:', error);
+            fetch('https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec')
+            .then(response => response.json())
+            .then(data => {
+                selectedNumbers.clear();
+                data.forEach(number => {
+                    selectedNumbers.add(number);
                 });
+                updateTable();
+            })
+            .catch(error => {
+                console.error('Error al obtener los datos:', error);
+            });
         }
 
-        window.onload = fetchSelectedNumbers;
+        window.onload = function() {
+            fetchSelectedNumbers();
+        };
     </script>
 </body>
 </html>
