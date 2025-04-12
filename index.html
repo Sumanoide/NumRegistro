@@ -1,130 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Formulario de Números</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      font-family: sans-serif;
-      padding: 20px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th, td {
-      border: 1px solid black;
-      text-align: center;
-      padding: 8px;
-      width: 10%;
-    }
-    .selected {
-      background-color: blue;
-      color: white;
-    }
-    .form-container {
-      width: 45%;
-    }
-    .table-container {
-      width: 50%;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Números</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+            padding: 10px;
+        }
+        .selected {
+            background-color: blue;
+            color: white;
+        }
+        .form-container {
+            width: 45%;
+        }
+        .table-container {
+            width: 50%;
+        }
+    </style>
 </head>
 <body>
-  <div class="form-container">
-    <h1>Formulario de Números</h1>
-    <form id="numberForm">
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" name="name" pattern="[A-Za-z\s]+" required><br><br>
+    <div class="form-container">
+        <h1>Formulario de Números</h1>
+        <form id="numberForm">
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" name="name" pattern="[A-Za-z\\s]+" required><br><br>
 
-      <label for="phone">Teléfono:</label>
-      <input type="text" id="phone" name="phone" pattern="\d{10}" required><br><br>
+            <label for="phone">Teléfono:</label>
+            <input type="text" id="phone" name="phone" pattern="\\d{10}" required><br><br>
 
-      <label for="number">Número (00-99):</label>
-      <input type="number" id="number" name="number" min="0" max="99" required><br><br>
+            <label for="number">Número (00-99):</label>
+            <input type="number" id="number" name="number" min="0" max="99" required><br><br>
 
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
 
-  <div class="table-container">
-    <table id="numberTable"></table>
-  </div>
+    <div class="table-container">
+        <h2>Números Ocupados</h2>
+        <table id="numberTable"></table>
+    </div>
 
-  <script>
-    const selectedNumbers = new Set();
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec";
+    <script>
+        const selectedNumbers = new Set();
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzlpM8626nD8TvW355UnXfBrO07fUoHvcpWddXMrJaZNZs8XfHlk0YzPLTBE5hZcYkz/exec";
 
-    document.getElementById("numberForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
+        document.getElementById('numberForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const number = parseInt(document.getElementById('number').value, 10);
 
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const number = parseInt(document.getElementById("number").value.trim());
+            if (selectedNumbers.has(number)) {
+                alert('El número ' + number + ' ya ha sido seleccionado. Por favor, elige otro número.');
+                return;
+            }
 
-      if (selectedNumbers.has(number)) {
-        alert("El número " + number + " ya ha sido seleccionado. Por favor, elige otro.");
-        return;
-      }
+            const data = {
+                name,
+                phone,
+                number
+            };
 
-      const data = { name, phone, number };
-
-      try {
-        const response = await fetch(scriptUrl, {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" }
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.text())
+              .then(result => {
+                alert('Registro exitoso');
+                selectedNumbers.add(number);
+                updateTable();
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión al guardar el registro.');
+            });
         });
 
-        const result = await response.text();
+        function updateTable() {
+            const table = document.getElementById('numberTable');
+            table.innerHTML = '';
 
-        if (result.includes("OK")) {
-          alert("Registro guardado con éxito");
-          selectedNumbers.add(number);
-          updateTable();
-        } else {
-          alert("Error al guardar el registro: " + result);
+            for (let i = 0; i < 10; i++) {
+                const row = table.insertRow();
+                for (let j = 0; j < 10; j++) {
+                    const number = i * 10 + j;
+                    const cell = row.insertCell();
+                    cell.textContent = number.toString().padStart(2, '0');
+                    if (selectedNumbers.has(number)) {
+                        cell.classList.add('selected');
+                    }
+                }
+            }
         }
-      } catch (error) {
-        console.error("Error en POST:", error);
-        alert("Error de conexión al guardar los datos.");
-      }
-    });
 
-    function updateTable() {
-      const table = document.getElementById("numberTable");
-      table.innerHTML = "";
-
-      for (let i = 0; i < 10; i++) {
-        const row = table.insertRow();
-        for (let j = 0; j < 10; j++) {
-          const num = i * 10 + j;
-          const cell = row.insertCell();
-          cell.textContent = num.toString().padStart(2, "0");
-          if (selectedNumbers.has(num)) {
-            cell.classList.add("selected");
-          }
+        function fetchSelectedNumbers() {
+            fetch(scriptURL)
+                .then(response => response.json())
+                .then(data => {
+                    selectedNumbers.clear();
+                    data.forEach(num => selectedNumbers.add(parseInt(num, 10)));
+                    updateTable();
+                })
+                .catch(error => {
+                    console.error('Error al obtener los números:', error);
+                });
         }
-      }
-    }
 
-    async function fetchSelectedNumbers() {
-      try {
-        const response = await fetch(scriptUrl);
-        const numbers = await response.json();
-        selectedNumbers.clear();
-        numbers.forEach(num => selectedNumbers.add(Number(num)));
-        updateTable();
-      } catch (error) {
-        console.error("Error al obtener los números:", error);
-      }
-    }
-
-    window.onload = fetchSelectedNumbers;
-  </script>
+        window.onload = fetchSelectedNumbers;
+    </script>
 </body>
 </html>
