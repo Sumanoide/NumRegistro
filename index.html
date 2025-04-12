@@ -1,91 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro de Números</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Número</title>
   <style>
     body {
-      font-family: sans-serif;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f0f4f8;
     }
-    .tabla {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 5px;
-      margin-top: 20px;
+
+    form {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .celda {
-      width: 40px;
-      height: 40px;
-      background-color: lightgray;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #ccc;
       border-radius: 4px;
     }
-    .ocupado {
-      background-color: #3498db;
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background-color: #007BFF;
       color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .mensaje {
+      margin-top: 1rem;
+      font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
 <body>
+  <form action="https://script.google.com/macros/s/AKfycbw2LGJ4jsJMAXktAGoObDycEFJgGUfi0K-kXOzBffo2Uc36c6OinnOclJgkIgLsDq83/exec" method="POST">
+    <h2>Registro de Número</h2>
 
-  <h2>Registro de Número</h2>
-  <form 
-    method="POST" 
-    action="https://script.google.com/macros/s/AKfycbw2LGJ4jsJMAXktAGoObDycEFJgGUfi0K-kXOzBffo2Uc36c6OinnOclJgkIgLsDq83/exec" 
-    target="invisible_iframe"
-  >
-    <label>Nombre:
-      <input type="text" name="name" required pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ ]{2,}" title="Solo letras y espacios">
-    </label><br><br>
+    <label for="name">Nombre:</label>
+    <input type="text" id="name" name="name" required />
 
-    <label>Teléfono:
-      <input type="tel" name="phone" required pattern="^\d{10}$" title="Debe contener exactamente 10 dígitos">
-    </label><br><br>
+    <label for="phone">Teléfono:</label>
+    <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required />
 
-    <label>Número (00 a 99):
-      <input type="number" name="number" required min="0" max="99">
-    </label><br><br>
+    <label for="number">Número (único entre 00 y 99):</label>
+    <input type="number" id="number" name="number" min="0" max="99" required />
 
     <button type="submit">Registrar</button>
+
+    <p class="mensaje">Después del registro, recibirás confirmación directa.</p>
   </form>
-
-  <!-- Iframe oculto para evitar redirección -->
-  <iframe name="invisible_iframe" style="display:none;"></iframe>
-
-  <h2>Números Ocupados</h2>
-  <div id="tabla" class="tabla"></div>
-
-  <script>
-    // URL de tu script para obtener los datos
-    const getURL = "https://script.google.com/macros/s/AKfycbw2LGJ4jsJMAXktAGoObDycEFJgGUfi0K-kXOzBffo2Uc36c6OinnOclJgkIgLsDq83/exec";
-
-    async function cargarNumeros() {
-      try {
-        const res = await fetch(getURL);
-        const ocupados = await res.json();
-
-        const contenedor = document.getElementById("tabla");
-        contenedor.innerHTML = "";
-        for (let i = 0; i < 100; i++) {
-          const numStr = i.toString().padStart(2, "0");
-          const celda = document.createElement("div");
-          celda.className = "celda";
-          if (ocupados.includes(numStr) || ocupados.includes(Number(numStr))) {
-            celda.classList.add("ocupado");
-          }
-          celda.textContent = numStr;
-          contenedor.appendChild(celda);
-        }
-      } catch (err) {
-        console.error("Error al cargar la tabla", err);
-      }
-    }
-
-    window.onload = cargarNumeros;
-  </script>
-
 </body>
 </html>
