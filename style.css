@@ -1,0 +1,104 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Estilo para las tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+/* Estilo para los encabezados */
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Estilos específicos para alto contraste usando forced-colors */
+@media (forced-colors: active) {
+    body {
+        background-color: black;
+        color: white;
+    }
+    table {
+        border-color: white;
+    }
+    th {
+        background-color: black;
+        color: white;
+    }
+    td {
+        background-color: black;
+        color: white;
+    }
+    input, select, textarea {
+        background-color: black;
+        color: white;
+        border: 1px solid white;
+    }
+}
+
+/* Estilos de formularios */
+input, select, textarea {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="submit"], button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover, button:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para el contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+/* Estilos de tablas para números y resultados */
+table th, table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+table {
+    width: 100%;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 10px;
+}
+
+table th {
+    background-color: #4CAF50;
+    color: white;
+}
