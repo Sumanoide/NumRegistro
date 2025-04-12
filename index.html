@@ -2,147 +2,90 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Números</title>
   <style>
-    table, th, td {
-      border: 1px solid black;
-      border-collapse: collapse;
+    body {
+      font-family: sans-serif;
+      padding: 20px;
     }
-    th, td {
-      padding: 10px;
-      text-align: center;
+    .tabla {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 5px;
+      margin-top: 20px;
     }
-    .occupied {
-      background-color: blue;
+    .celda {
+      width: 40px;
+      height: 40px;
+      background-color: lightgray;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+    .ocupado {
+      background-color: #3498db;
       color: white;
-    }
-    .form-container {
-      margin: 20px 0;
     }
   </style>
 </head>
 <body>
-  <h2>Registro de Números</h2>
 
-  <!-- Formulario para agregar registros -->
-  <div class="form-container">
-    <form id="registrationForm">
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" name="name" required><br><br>
-      
-      <label for="phone">Teléfono (10 dígitos):</label>
-      <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required><br><br>
+  <h2>Registro de Número</h2>
+  <form 
+    method="POST" 
+    action="https://script.google.com/macros/s/AKfycbw2LGJ4jsJMAXktAGoObDycEFJgGUfi0K-kXOzBffo2Uc36c6OinnOclJgkIgLsDq83/exec" 
+    target="invisible_iframe"
+  >
+    <label>Nombre:
+      <input type="text" name="name" required pattern="[A-Za-zÁÉÍÓÚÑáéíóúñ ]{2,}" title="Solo letras y espacios">
+    </label><br><br>
 
-      <label for="number">Número (00 - 99):</label>
-      <input type="number" id="number" name="number" min="0" max="99" required><br><br>
+    <label>Teléfono:
+      <input type="tel" name="phone" required pattern="^\d{10}$" title="Debe contener exactamente 10 dígitos">
+    </label><br><br>
 
-      <button type="submit">Registrar</button>
-    </form>
-  </div>
+    <label>Número (00 a 99):
+      <input type="number" name="number" required min="0" max="99">
+    </label><br><br>
 
-  <!-- Tabla para mostrar los números ocupados -->
-  <h3>Tabla de Números Ocupados</h3>
-  <table id="numbersTable">
-    <thead>
-      <tr>
-        <th>Num</th>
-        <th>Estado</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- La tabla se llenará con JavaScript -->
-    </tbody>
-  </table>
+    <button type="submit">Registrar</button>
+  </form>
+
+  <!-- Iframe oculto para evitar redirección -->
+  <iframe name="invisible_iframe" style="display:none;"></iframe>
+
+  <h2>Números Ocupados</h2>
+  <div id="tabla" class="tabla"></div>
 
   <script>
-    const form = document.getElementById('registrationForm');
-    const tableBody = document.querySelector('#numbersTable tbody');
-    const appUrl = 'https://script.google.com/macros/s/AKfycbw2LGJ4jsJMAXktAGoObDycEFJgGUfi0K-kXOzBffo2Uc36c6OinnOclJgkIgLsDq83/exec';
+    // URL de tu script para obtener los datos
+    const getURL = "https://script.google.com/macros/s/AKfycbw2LGJ4jsJMAXktAGoObDycEFJgGUfi0K-kXOzBffo2Uc36c6OinnOclJgkIgLsDq83/exec";
 
-    // Obtener los números ocupados desde Google Sheets
-    async function fetchOccupiedNumbers() {
+    async function cargarNumeros() {
       try {
-        const response = await fetch(appUrl);
-        const data = await response.json();
-        
-        const occupiedNumbers = new Set(data);  // Usamos un Set para evitar duplicados
-        fillTable(occupiedNumbers);
-      } catch (error) {
-        console.error('Error al obtener los números ocupados:', error);
-      }
-    }
+        const res = await fetch(getURL);
+        const ocupados = await res.json();
 
-    // Rellenar la tabla con los números ocupados
-    function fillTable(occupiedNumbers) {
-      tableBody.innerHTML = ''; // Limpiar la tabla antes de llenarla
-
-      // Crear filas para los números del 00 al 99
-      for (let i = 0; i < 100; i++) {
-        const row = document.createElement('tr');
-        const cellNum = document.createElement('td');
-        const cellStatus = document.createElement('td');
-        
-        const num = i < 10 ? '0' + i : i; // Asegurarse de que los números sean de 2 dígitos
-        cellNum.textContent = num;
-        
-        if (occupiedNumbers.has(num)) {
-          cellStatus.textContent = 'Ocupado';
-          cellStatus.classList.add('occupied');
-        } else {
-          cellStatus.textContent = 'Disponible';
+        const contenedor = document.getElementById("tabla");
+        contenedor.innerHTML = "";
+        for (let i = 0; i < 100; i++) {
+          const numStr = i.toString().padStart(2, "0");
+          const celda = document.createElement("div");
+          celda.className = "celda";
+          if (ocupados.includes(numStr) || ocupados.includes(Number(numStr))) {
+            celda.classList.add("ocupado");
+          }
+          celda.textContent = numStr;
+          contenedor.appendChild(celda);
         }
-
-        row.appendChild(cellNum);
-        row.appendChild(cellStatus);
-        tableBody.appendChild(row);
+      } catch (err) {
+        console.error("Error al cargar la tabla", err);
       }
     }
 
-    // Manejar el envío del formulario
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault(); // Evitar el comportamiento por defecto del formulario
-
-      const name = document.getElementById('name').value;
-      const phone = document.getElementById('phone').value;
-      const number = document.getElementById('number').value;
-
-      // Verificar si el número ya está ocupado
-      const response = await fetch(appUrl);
-      const data = await response.json();
-
-      if (data.includes(number)) {
-        alert('Este número ya está ocupado. Por favor elige otro.');
-        return;
-      }
-
-      // Enviar los datos del formulario al script de Google Apps
-      const postData = {
-        name: name,
-        phone: phone,
-        number: number
-      };
-
-      try {
-        await fetch(appUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(postData)
-        });
-
-        alert('Registro exitoso');
-        form.reset(); // Limpiar el formulario después de registrar
-        fetchOccupiedNumbers(); // Actualizar la tabla de números ocupados
-      } catch (error) {
-        console.error('Error al registrar los datos:', error);
-        alert('Error al registrar los datos. Por favor, intenta nuevamente.');
-      }
-    });
-
-    // Cargar los números ocupados cuando la página se cargue
-    window.addEventListener('load', fetchOccupiedNumbers);
+    window.onload = cargarNumeros;
   </script>
+
 </body>
 </html>
